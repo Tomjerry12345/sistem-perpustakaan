@@ -1,24 +1,6 @@
-version: v0.0.5 ✅ ❌ 🔥
-- tanggal terbit tidak ada di tambah buku web 🔥
-- list buku di scroll ke bawah 🔥
-
-version: v0.0.4 ✅ ❌ 🔥
-- tambahkan stok buku ✅
-- tambahkan login ✅
-- tambahkan menu tamu ✅
-- harus ada konfirmasi dari admin ketika peminjaman offline ✅
-
-
-version: v0.0.3 ✅ ❌ 🔥
-- hilangkan tombol konfirmasi di peminjaman ketika melakukan peminjaman online ✅
-
-version: v0.0.2 ✅ ❌ 🔥
-- perbaiki bug tambah buku ✅
-
-version: v0.0.1 ✅ ❌ 🔥
-- Buat logic untuk konfirmasi di peminjaman ✅
-- Buat logic untuk perpanjangan di peminjaman ✅
-- Buat logic untuk hapus peminjaman ✅
-- Perbaiki page peminjaman ✅
-- buat logic untuk pengembalian ✅
-- buat data anggota ✅
+version: v0.0.6 ✅ ❌ 🔥
+- Tambahkan import / export di data buku ❌
+- Tambahkan import / export di data anggota ❌
+- Tambahkan import / export di buku tamu ❌
+- Tambahkan import / export di peminjaman ❌
+- Tambahkan import / export di pengembalian ❌

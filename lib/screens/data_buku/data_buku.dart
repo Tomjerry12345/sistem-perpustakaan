@@ -1,5 +1,6 @@
 // ignore_for_file: use_build_context_synchronously, non_constant_identifier_names
 
+import 'dart:convert';
 import 'dart:io';
 import 'package:admin_perpustakaan/utils/log_utils.dart';
 import 'package:admin_perpustakaan/utils/screen_utils.dart';
@@ -16,6 +17,8 @@ import 'package:admin_perpustakaan/services/FirebaseServices.dart';
 import 'package:admin_perpustakaan/utils/flutter_pdf_split.dart';
 import 'package:admin_perpustakaan/utils/position.dart';
 import 'package:admin_perpustakaan/utils/string_utils.dart';
+// ignore: avoid_web_libraries_in_flutter
+import 'dart:html' as webFile;
 
 class DataBuku extends StatefulWidget {
   const DataBuku({Key? key}) : super(key: key);
@@ -51,6 +54,8 @@ class _DataBukuState extends State<DataBuku> {
   String image1 = "";
   String pdfLink = "";
   Map<String, dynamic> _pdfFile = {"fileBytes": null, "fileName": ""};
+
+  List<QueryDocumentSnapshot>? allData;
 
   void defaultState() {
     setState(() {
@@ -464,6 +469,40 @@ class _DataBukuState extends State<DataBuku> {
         });
   }
 
+  void onExport() {
+    var l = [];
+    allData!.forEach((e) {
+      var judulBuku = e['judul_buku'].toString();
+      var pengarang = e['pengarang'].toString();
+      var penerbit = e['penerbit'].toString();
+      var kategori = e['kategori'].toString();
+      var rak = e['rak'].toString();
+      var stokBuku = e['stok_buku'];
+      var halaman = e['halaman'].toString();
+      var image = e['image'].toString();
+      l.add({
+        "judul_buku": judulBuku,
+        "pengarang": pengarang,
+        "penerbit": penerbit,
+        "kategori": kategori,
+        "rak": rak,
+        "stokBuku": stokBuku,
+        "halaman": halaman,
+        "image": image,
+      });
+    });
+    var jsonString = jsonEncode(l);
+    var blob = webFile.Blob([
+      [jsonString]
+    ], 'application/json', 'native');
+
+    webFile.AnchorElement(
+      href: webFile.Url.createObjectUrlFromBlob(blob).toString(),
+    )
+      ..setAttribute("download", "data-buku.json")
+      ..click();
+  }
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
@@ -472,6 +511,7 @@ class _DataBukuState extends State<DataBuku> {
             : fs.getAllStream("books"),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
+            allData = snapshot.data!.docs;
             return Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -1001,6 +1041,22 @@ class _DataBukuState extends State<DataBuku> {
                 },
                 child: const Text(
                   'Tambah Buku',
+                  style: TextStyle(color: Colors.white),
+                )),
+          ),
+          Container(
+            height: 40,
+            decoration: BoxDecoration(
+                color: Colors.white, borderRadius: BorderRadius.circular(5)),
+            child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.greenAccent,
+                    textStyle: const TextStyle(fontSize: 16)),
+                onPressed: () {
+                  onExport();
+                },
+                child: const Text(
+                  'Export',
                   style: TextStyle(color: Colors.white),
                 )),
           ),

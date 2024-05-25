@@ -1,5 +1,9 @@
+import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+// ignore: avoid_web_libraries_in_flutter
+import 'dart:html' as webFile;
 
 class BukuTamu extends StatefulWidget {
   const BukuTamu({Key? key}) : super(key: key);
@@ -14,26 +18,83 @@ class _BukuTamuState extends State<BukuTamu> {
 
   final double sizeColumn = 200;
 
+  List<QueryDocumentSnapshot>? allData;
+
+  void onExport() {
+    var l = [];
+    allData!.forEach((e) {
+      var noAnggota = e['no_anggota'].toString();
+      var nama = e['nama'].toString();
+      var alamat = e['alamat'].toString();
+
+      final tanggal = e["tanggal"];
+      final hari = tanggal["hari"];
+      final bulan = tanggal["bulan"];
+      final tahun = tanggal["tahun"];
+      var date = "$hari/$bulan/$tahun";
+
+      var pekerjaan = e['pekerjaan'].toString();
+      var noHp = e['noHp'];
+
+      l.add({
+        "no_anggota": noAnggota,
+        "nama": nama,
+        "alamat": alamat,
+        "date": date,
+        "pekerjaan": pekerjaan,
+        "noHp": noHp,
+      });
+    });
+    var jsonString = jsonEncode(l);
+    var blob = webFile.Blob([
+      [jsonString]
+    ], 'application/json', 'native');
+
+    webFile.AnchorElement(
+      href: webFile.Url.createObjectUrlFromBlob(blob).toString(),
+    )
+      ..setAttribute("download", "buku-tamu.json")
+      ..click();
+  }
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
         stream: firestore.collection("tamu").snapshots(),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
+            allData = snapshot.data!.docs;
             return Expanded(
               child: Column(
                 children: [
-                  const Padding(
+                  Padding(
                     padding: EdgeInsets.only(
                         left: 20, right: 20, top: 30, bottom: 10),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
                           "Buku Tamu",
                           style: TextStyle(
                               fontSize: 25, fontWeight: FontWeight.w600),
+                        ),
+                        Container(
+                          height: 40,
+                          decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(5)),
+                          child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.greenAccent,
+                                  textStyle: const TextStyle(fontSize: 16)),
+                              onPressed: () {
+                                onExport();
+                              },
+                              child: const Text(
+                                'Export',
+                                style: TextStyle(color: Colors.white),
+                              )),
                         ),
                       ],
                     ),

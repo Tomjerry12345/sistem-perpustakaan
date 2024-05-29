@@ -204,6 +204,7 @@ class _RegistrasiState extends State<Registrasi> {
 
       final json = {
         // "uid": res.user!.uid,
+        "nik": nikcontroller.text.trim(),
         "nama": namaController.text.trim(),
         "alamat": alamatController.text.trim(),
         "pekerjaan": pekerjaanController.text.trim(),

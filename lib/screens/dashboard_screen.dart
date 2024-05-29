@@ -1,5 +1,8 @@
+import 'package:admin_perpustakaan/screens/autentikasi/login/login.dart';
 import 'package:admin_perpustakaan/screens/buku_tamu/buku_tamu.dart';
 import 'package:admin_perpustakaan/services/FirebaseServices.dart';
+import 'package:admin_perpustakaan/utils/log_utils.dart';
+import 'package:admin_perpustakaan/utils/navigate_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:admin_perpustakaan/screens/data_anggota/data_anggota.dart';
 import 'package:admin_perpustakaan/screens/data_buku/data_buku.dart';
@@ -14,14 +17,6 @@ class DashboardScreen extends StatefulWidget {
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();
 }
-
-// Future<Widget> LogOut() async {
-//   final fs = FirebaseServices();
-
-//   await fs.(
-//                               emailTxt, passTxt);
-//   return Container();
-// }
 
 class _DashboardScreenState extends State<DashboardScreen> {
   //setting the expansion function for the navigation rail
@@ -85,6 +80,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
               selectedIconTheme: IconThemeData(color: Colors.blue.shade300),
               onDestinationSelected: (value) {
+                log("index", v: value);
+                if (value == 6) {
+                  navigatePushAndRemove(const Login());
+                }
                 setState(() {
                   index = value;
                 });
@@ -118,10 +117,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   icon: Icon(Icons.group),
                   label: Text("Data Anggota"),
                 ),
-                // NavigationRailDestination(
-                //   icon: Icon(Icons.logout),
-                //   label: Text("Log out"),
-                // ),
+                NavigationRailDestination(
+                  icon: Icon(Icons.logout),
+                  label: Text("Log out"),
+                ),
               ],
               selectedIndex: index),
           index == 0

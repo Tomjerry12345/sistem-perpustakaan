@@ -1,10 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+// import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:pdf/pdf.dart' as pdf;
 import 'package:pdf/widgets.dart' as pw;
 import 'package:perpustakaan_mobile/model/ModelQuery.dart';
 import 'package:perpustakaan_mobile/services/FirebaseServices.dart';
+import 'package:perpustakaan_mobile/services/SharedPreferencesServices.dart';
 import 'package:perpustakaan_mobile/ui/dashboard/akun/kartu_perpus/kartu_perpus.dart';
 import 'package:perpustakaan_mobile/ui/login/login.dart';
 import 'package:perpustakaan_mobile/utils/Utils.dart';
@@ -23,18 +24,26 @@ class Akun extends StatefulWidget {
 class _AkunState extends State<Akun> {
   final fs = FirebaseServices();
 
-  // @override
-  // void initState() {
-  //   super.initState();
-  // }
+  final preferences = SharedPreferencesServices();
 
-  // void getData() {
+  String noAnggota = "";
 
-  // }
+  @override
+  void initState() {
+    super.initState();
+    getNoAnggota();
+  }
+
+  Future<void> getNoAnggota() async {
+    await preferences.init();
+    setState(() {
+      noAnggota = preferences.getString("no_anggota");
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    User? user = fs.getCurrentUser();
+    // User? user = fs.getCurrentUser();
 
     void displayPdf(data) async {
       final doc = pw.Document();
@@ -157,7 +166,8 @@ class _AkunState extends State<Akun> {
             IconButton(
               icon: const Icon(Icons.logout, color: Colors.white),
               onPressed: () {
-                FirebaseAuth.instance.signOut();
+                // FirebaseAuth.instance.signOut();
+                preferences.setString("no_anggota", "");
                 Utils.showSnackBar("Berhasil logout.", Colors.red);
                 navigatePush(const Login(), isRemove: true);
               },
@@ -173,8 +183,8 @@ class _AkunState extends State<Akun> {
           ),
         ),
         body: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-            stream: fs
-                .query("users", [ModelQuery(key: "email", value: user!.email)]),
+            stream: fs.query(
+                "users", [ModelQuery(key: "no_anggota", value: noAnggota)]),
             builder: (context, snapshot) {
               if (snapshot.hasData) {
                 final docs = snapshot.data!.docs[0];

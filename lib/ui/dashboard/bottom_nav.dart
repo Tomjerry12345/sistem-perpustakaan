@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+// import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pandabar/main.view.dart';
@@ -7,12 +7,14 @@ import 'package:pandabar/model.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:perpustakaan_mobile/model/ModelQuery.dart';
 import 'package:perpustakaan_mobile/services/FirebaseServices.dart';
+import 'package:perpustakaan_mobile/services/SharedPreferencesServices.dart';
 import 'package:perpustakaan_mobile/ui/dashboard/akun/akun.dart';
 import 'package:perpustakaan_mobile/ui/dashboard/home/home.dart';
 import 'package:perpustakaan_mobile/ui/dashboard/peminjaman/peminjaman.dart';
 import 'package:perpustakaan_mobile/ui/dashboard/pengembalian/pengembalian.dart';
 import 'package:perpustakaan_mobile/utils/Time.dart';
 import 'package:perpustakaan_mobile/utils/Utils.dart';
+import 'package:perpustakaan_mobile/utils/log_utils.dart';
 import 'package:perpustakaan_mobile/utils/show_utils.dart';
 
 class BottomNav extends StatefulWidget {
@@ -24,12 +26,33 @@ class BottomNav extends StatefulWidget {
 }
 
 class _BottomNavState extends State<BottomNav> {
-  final currentUser = FirebaseAuth.instance.currentUser;
+  // final currentUser = FirebaseAuth.instance.currentUser;
+  final preferences = SharedPreferencesServices();
   String page = 'Home';
 
   final time = Time();
 
   final fs = FirebaseServices();
+
+  String email = "";
+
+  @override
+  void initState() {
+    super.initState();
+    getEmail();
+  }
+
+  Future<void> getEmail() async {
+    await preferences.init();
+    final noAnggota = preferences.getString("no_anggota");
+    final qUsers = await fs.queryFuture(
+        "users", [ModelQuery(key: "no_anggota", value: noAnggota)]);
+    final dataUser = qUsers.docs[0].data();
+    log("before", v: dataUser["email"]);
+    setState(() {
+      email = dataUser["email"];
+    });
+  }
 
   void onScan(BuildContext context) {
     dialogShow(
@@ -88,9 +111,11 @@ class _BottomNavState extends State<BottomNav> {
         .where("barcode", isEqualTo: barcodeScanRes)
         .get();
 
+    log("email", v: email);
+
     var users = await FirebaseFirestore.instance
         .collection("users")
-        .where("email", isEqualTo: currentUser!.email)
+        .where("email", isEqualTo: email)
         .get();
     var user = users.docs[0];
 
@@ -123,7 +148,7 @@ class _BottomNavState extends State<BottomNav> {
         final json = {
           "barcode": book["barcode"],
           "nama_peminjam": user["nama"],
-          "email": currentUser!.email,
+          "email": email,
           "judul_buku": book["judul_buku"],
           "pengarang": book["pengarang"],
           "image": book["image"],
@@ -171,8 +196,7 @@ class _BottomNavState extends State<BottomNav> {
 
   Future<void> _onPinjam(String barcodeScanRes) async {
     if (barcodeScanRes == "default") {
-      await fs.update(
-          "barcode", "code", {"code": "peminjaman-${currentUser!.email}"});
+      await fs.update("barcode", "code", {"code": "peminjaman-$email"});
     }
   }
 

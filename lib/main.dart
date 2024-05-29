@@ -1,18 +1,22 @@
-import 'package:firebase_auth/firebase_auth.dart';
+// import 'package:cloud_firestore/cloud_firestore.dart';
+// import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:perpustakaan_mobile/firebase_options.dart';
 import 'package:perpustakaan_mobile/model/ModelQuery.dart';
 import 'package:perpustakaan_mobile/services/FirebaseServices.dart';
 import 'package:perpustakaan_mobile/services/NotificationServices.dart';
-import 'package:perpustakaan_mobile/ui/autentikasi/face_autentikasi.dart';
+import 'package:perpustakaan_mobile/services/SharedPreferencesServices.dart';
+// import 'package:perpustakaan_mobile/ui/autentikasi/face_autentikasi.dart';
 import 'package:perpustakaan_mobile/ui/awal/awal.dart';
+import 'package:perpustakaan_mobile/ui/dashboard/bottom_nav.dart';
 import 'package:perpustakaan_mobile/ui/login/login.dart';
 import 'package:perpustakaan_mobile/utils/Time.dart';
 import 'package:perpustakaan_mobile/utils/Utils.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
@@ -87,16 +91,30 @@ class MainPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final preference = SharedPreferencesServices();
+
+    Future<String?> loadIsLoggin() async {
+      await preference.init();
+      String? isLoggin = preference.getString("no_anggota");
+      return isLoggin;
+    }
+
     return Scaffold(
-      body: StreamBuilder<User?>(
-          stream: FirebaseAuth.instance.authStateChanges(),
-          builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              return const FaceAutentikasi();
-            } else {
-              return const Login();
-            }
-          }),
-    );
+        body: FutureBuilder(
+            future: loadIsLoggin(),
+            builder: (BuildContext context, AsyncSnapshot<String?> value) {
+              return value.data != "" ? const BottomNav() : const Login();
+            })
+        // body: StreamBuilder<User?>(
+        //     stream: FirebaseAuth.instance.authStateChanges(),
+        //     builder: (context, snapshot) {
+        //       if (snapshot.hasData) {
+        //         // return const FaceAutentikasi();
+        //         return const BottomNav();
+        //       } else {
+        //         return const Login();
+        //       }
+        //     }),
+        );
   }
 }

@@ -5,21 +5,6 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "small device",
-      "request": "launch",
-      "program": "lib/main.dart",
-      "type": "dart",
-      "deviceId": "emulator-5556"
-    },
-
-    {
-      "name": "high device",
-      "request": "launch",
-      "program": "lib/main.dart",
-      "type": "dart",
-      "deviceId": "emulator-5558"
-    },
-    {
       "name": "perpustakaan_mobile",
       "request": "launch",
       "program": "lib/main.dart",
@@ -36,12 +21,6 @@
       "request": "launch",
       "type": "dart",
       "flutterMode": "release"
-    }
-  ],
-  "compounds": [
-    {
-      "name": "All Devices",
-      "configurations": ["small device", "high device"]
     }
   ]
 }

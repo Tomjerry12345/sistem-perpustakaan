@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:perpustakaan_mobile/model/ModelQuery.dart';
 import 'package:perpustakaan_mobile/services/FirebaseServices.dart';
+import 'package:perpustakaan_mobile/services/SharedPreferencesServices.dart';
 import 'package:perpustakaan_mobile/ui/dashboard/data-buku/section/view-pdf/view_pdf.dart';
 import 'package:perpustakaan_mobile/utils/Time.dart';
 import 'package:perpustakaan_mobile/utils/log_utils.dart';
@@ -23,8 +24,29 @@ class Peminjaman extends StatefulWidget {
 
 class _PeminjamanState extends State<Peminjaman> {
   FirebaseServices db = FirebaseServices();
+  final preferences = SharedPreferencesServices();
+
   final time = Time();
   final hariController = TextEditingController();
+
+  String email = "";
+
+  @override
+  void initState() {
+    super.initState();
+    getEmail();
+  }
+
+  Future<void> getEmail() async {
+    await preferences.init();
+    final noAnggota = preferences.getString("no_anggota");
+    final qUsers = await db.queryFuture(
+        "users", [ModelQuery(key: "no_anggota", value: noAnggota)]);
+    final dataUser = qUsers.docs[0].data();
+    setState(() {
+      email = dataUser["email"];
+    });
+  }
 
   void onBacaBuku(DocumentSnapshot<Object?> documenSnapshot) {
     final data = documenSnapshot.data() as Map<String, dynamic>;
@@ -104,9 +126,9 @@ class _PeminjamanState extends State<Peminjaman> {
 
   @override
   Widget build(BuildContext context) {
-    final currentUser = db.getCurrentUser();
+    // final currentUser = db.getCurrentUser();
 
-    final query = [ModelQuery(key: "email", value: currentUser?.email)];
+    final query = [ModelQuery(key: "email", value: email)];
 
     return Scaffold(
         appBar: AppBar(
@@ -209,7 +231,8 @@ class _PeminjamanState extends State<Peminjaman> {
                       decoration: BoxDecoration(
                           shape: BoxShape.rectangle,
                           color: data['konfirmasi'] ? Colors.green : Colors.red,
-                          borderRadius: BorderRadius.all(Radius.circular(20))),
+                          borderRadius:
+                              const BorderRadius.all(Radius.circular(20))),
                       child: Container(
                           margin: const EdgeInsets.all(12),
                           child: Row(
@@ -222,11 +245,11 @@ class _PeminjamanState extends State<Peminjaman> {
                                 fontSize: 14,
                               ),
                               data['konfirmasi']
-                                  ? Icon(
+                                  ? const Icon(
                                       Icons.done,
                                       color: Colors.white,
                                     )
-                                  : Icon(
+                                  : const Icon(
                                       Icons.close,
                                       color: Colors.white,
                                     )
@@ -236,7 +259,7 @@ class _PeminjamanState extends State<Peminjaman> {
                   : Container(),
               data["type_peminjaman"] == "online"
                   ? ElevatedButton.icon(
-                      icon: Icon(
+                      icon: const Icon(
                         Icons.assignment_return,
                         color: Colors.white,
                       ),
@@ -277,7 +300,7 @@ class _PeminjamanState extends State<Peminjaman> {
                           onPressed: () {
                             onBacaBuku(data);
                           },
-                          icon: Icon(
+                          icon: const Icon(
                             Icons.menu_book,
                             color: Colors.white,
                           ),

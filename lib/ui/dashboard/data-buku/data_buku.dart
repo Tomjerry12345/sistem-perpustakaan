@@ -1,20 +1,21 @@
-import 'dart:io';
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:perpustakaan_mobile/services/FirebaseServices.dart';
+import 'package:perpustakaan_mobile/services/SharedPreferencesServices.dart';
 import 'package:perpustakaan_mobile/ui/dashboard/data-buku/section/view-pdf/view_pdf.dart';
 
 import 'package:flutter/foundation.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:perpustakaan_mobile/utils/Time.dart';
 import 'package:perpustakaan_mobile/utils/Utils.dart';
 import 'package:perpustakaan_mobile/utils/log_utils.dart';
 import 'package:perpustakaan_mobile/utils/position.dart';
 import 'package:perpustakaan_mobile/utils/show_utils.dart';
 import 'package:perpustakaan_mobile/widget/text/text_widget.dart';
+import 'package:syncfusion_flutter_pdf/pdf.dart';
+import 'package:http/http.dart' as http;
 
 import '../../../model/ModelQuery.dart';
 import '../../../utils/navigate_utils.dart';
@@ -33,17 +34,34 @@ class _DataBukuState extends State<DataBuku> {
   final time = Time();
   int? sisaPeminjaman;
 
+  final preferences = SharedPreferencesServices();
+
+  String email = "";
+  String noAnggota = "";
+
   @override
   initState() {
     super.initState();
+    getEmail();
     getSisaPeminjaman();
+  }
+
+  Future<void> getEmail() async {
+    await preferences.init();
+    final noAnggota = preferences.getString("no_anggota");
+    final qUsers = await firebaseServices.queryFuture(
+        "users", [ModelQuery(key: "no_anggota", value: noAnggota)]);
+    final dataUser = qUsers.docs[0].data();
+    setState(() {
+      email = dataUser["email"];
+      this.noAnggota = noAnggota;
+    });
   }
 
   Future<void> getSisaPeminjaman() async {
     final time = Time();
-    final dataPeminjaman = await firebaseServices.queryFuture("peminjaman", [
-      ModelQuery(key: "email", value: firebaseServices.getCurrentUser()?.email)
-    ]);
+    final dataPeminjaman = await firebaseServices
+        .queryFuture("peminjaman", [ModelQuery(key: "email", value: email)]);
 
     for (final dataP in dataPeminjaman.docs) {
       final dt = dataP.data();
@@ -73,35 +91,9 @@ class _DataBukuState extends State<DataBuku> {
     }
   }
 
-  Future<File> createFileOfPdfUrl() async {
-    Completer<File> completer = Completer();
-    log("Start download file from internet!");
-    try {
-      // "https://berlin2017.droidcon.cod.newthinking.net/sites/global.droidcon.cod.newthinking.net/files/media/documents/Flutter%20-%2060FPS%20UI%20of%20the%20future%20%20-%20DroidconDE%2017.pdf";
-      // final url = "https://pdfkit.org/docs/guide.pdf";
-      const url = "http://www.pdf995.com/samples/pdf.pdf";
-      final filename = url.substring(url.lastIndexOf("/") + 1);
-      var request = await HttpClient().getUrl(Uri.parse(url));
-      var response = await request.close();
-      var bytes = await consolidateHttpClientResponseBytes(response);
-      var dir = await getApplicationDocumentsDirectory();
-      log("Download files");
-      log("${dir.path}/$filename");
-      File file = File("${dir.path}/$filename");
-
-      await file.writeAsBytes(bytes, flush: true);
-      completer.complete(file);
-    } catch (e) {
-      throw Exception('Error parsing asset file!');
-    }
-
-    return completer.future;
-  }
-
   void onPinjamBuku() async {
-    final qUsers = await firebaseServices.queryFuture("users", [
-      ModelQuery(key: "email", value: firebaseServices.getCurrentUser()?.email)
-    ]);
+    final qUsers = await firebaseServices.queryFuture(
+        "users", [ModelQuery(key: "no_anggota", value: noAnggota)]);
     final dataUser = qUsers.docs[0].data();
 
     final dataPeminjaman = await firebaseServices.queryFuture(
@@ -151,6 +143,50 @@ class _DataBukuState extends State<DataBuku> {
       }
     } else {
       Utils.showSnackBar("Buku sudah di pinjam", Colors.red);
+    }
+  }
+
+  Future<void> readBookWithAudio() async {
+    final client = http.Client();
+    final uri = Uri.parse(widget.data!["buku"]);
+
+    try {
+      final http.StreamedResponse response =
+          await client.send(http.Request('GET', uri));
+      final totalBytes = response.contentLength;
+      var bytesReceived = 0;
+
+      final List<int> buffer = <int>[];
+      await for (final List<int> chunk in response.stream) {
+        buffer.addAll(chunk);
+        bytesReceived += chunk.length;
+
+        if (totalBytes != null) {
+          log("progress", v: bytesReceived / totalBytes);
+          // setState(() {
+          //   _progress = bytesReceived / totalBytes;
+          // });
+        }
+      }
+
+      // Once download is complete, you can proceed with processing the PDF
+      // For example:
+      final documentBytes = Uint8List.fromList(buffer);
+      // Now you have the bytes of the downloaded PDF in documentBytes
+
+      //   log("first", v: widget.data!["buku"]);
+
+      // final documentBytes = await http.readBytes(Uri.parse(widget.data!["buku"]));
+
+      // log("documentBytes");
+      PdfDocument document = PdfDocument(inputBytes: documentBytes);
+
+      PdfTextExtractor extractor = PdfTextExtractor(document);
+
+      String text = extractor.extractText();
+      log("text", v: text);
+    } catch (e) {
+      log("error", v: e);
     }
   }
 
@@ -340,7 +376,7 @@ class _DataBukuState extends State<DataBuku> {
                                           backgroundColor:
                                               sisaPeminjaman == null
                                                   ? Colors.blue
-                                                  : Color.fromARGB(
+                                                  : const Color.fromARGB(
                                                       255, 137, 136, 136),
                                           padding: const EdgeInsets.symmetric(
                                               vertical: 20),
@@ -360,7 +396,24 @@ class _DataBukuState extends State<DataBuku> {
                                         },
                                       ),
                                     ),
-                                    // V(8),
+                                    Container(
+                                      margin: const EdgeInsets.symmetric(
+                                          vertical: 15),
+                                      width: double.infinity,
+                                      padding: const EdgeInsets.all(3),
+                                      child: ElevatedButton(
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.green,
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 20),
+                                        ),
+                                        onPressed: readBookWithAudio,
+                                        child: const TextWidget(
+                                          "Baca buku dengan audio",
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
                                     sisaPeminjaman == null
                                         ? Container(
                                             margin: const EdgeInsets.symmetric(

@@ -2,16 +2,19 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:local_auth/local_auth.dart';
+import 'package:perpustakaan_mobile/model/ModelQuery.dart';
 import 'package:perpustakaan_mobile/services/FirebaseServices.dart';
-import 'package:perpustakaan_mobile/ui/autentikasi/face_autentikasi.dart';
+import 'package:perpustakaan_mobile/services/SharedPreferencesServices.dart';
 import 'package:perpustakaan_mobile/ui/registrasi/registrasi.dart';
 import 'package:perpustakaan_mobile/utils/Utils.dart';
-import 'package:perpustakaan_mobile/utils/log_utils.dart';
+// import 'package:perpustakaan_mobile/utils/log_utils.dart';
+// import 'package:perpustakaan_mobile/utils/log_utils.dart';
 import 'package:perpustakaan_mobile/utils/navigate_utils.dart';
 import 'package:perpustakaan_mobile/utils/position.dart';
 import 'package:perpustakaan_mobile/widget/text/text_widget.dart';
 import 'package:perpustakaan_mobile/widget/textfield/textfield_component.dart';
 import 'package:perpustakaan_mobile/widget/textfield/textfield_password_component.dart';
+import 'package:perpustakaan_mobile/ui/dashboard/bottom_nav.dart';
 
 class Login extends StatefulWidget {
   const Login({Key? key}) : super(key: key);
@@ -21,15 +24,17 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
-  final emailController = TextEditingController();
+  final noAnggotaController = TextEditingController();
   final passwordController = TextEditingController();
 
   final LocalAuthentication auth = LocalAuthentication();
   final fs = FirebaseServices();
 
+  final preference = SharedPreferencesServices();
+
   @override
   void dispose() {
-    emailController.dispose();
+    noAnggotaController.dispose();
     passwordController.dispose();
     super.dispose();
   }
@@ -67,34 +72,13 @@ class _LoginState extends State<Login> {
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Column(
                 children: [
-                  // const SizedBox(
-                  //   width: double.infinity,
-                  //   child: Text(
-                  //     "Email",
-                  //     textAlign: TextAlign.left,
-                  //   ),
-                  // ),
-                  // const SizedBox(
-                  //   height: 8,
-                  // ),
                   TextfieldComponent(
-                    label: 'Email',
-                    controller: emailController,
-                    inputType: TextInputType.emailAddress,
+                    label: 'No. Anggota',
+                    controller: noAnggotaController,
+                    inputType: TextInputType.number,
                     colorText: Colors.blue,
                   ),
                   V(32),
-                  // Container(
-                  //   margin: const EdgeInsets.only(top: 20),
-                  //   width: double.infinity,
-                  //   child: const Text(
-                  //     "Password",
-                  //     textAlign: TextAlign.left,
-                  //   ),
-                  // ),
-                  // const SizedBox(
-                  //   height: 8,
-                  // ),
                   TextfieldPasswordComponent(
                       label: "Password",
                       controller: passwordController,
@@ -105,17 +89,6 @@ class _LoginState extends State<Login> {
             const SizedBox(
               height: 8,
             ),
-            // Container(
-            //   width: double.infinity,
-            //   alignment: Alignment.centerRight,
-            //   child: TextButton(
-            //     child: Text("lupa Password ?"),
-            //     style: TextButton.styleFrom(
-            //       primary: Colors.blue,
-            //     ),
-            //     onPressed: () {},
-            //   ),
-            // ),
             const SizedBox(
               height: 20,
             ),
@@ -185,22 +158,38 @@ class _LoginState extends State<Login> {
       ),
     );
     try {
-      final email = emailController.text.trim();
+      final noAnggota = noAnggotaController.text.trim();
       final password = passwordController.text.trim();
 
-      log("email", v: email);
-      log("password", v: password);
+      preference.init();
 
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
+      var res = await fs.queryFuture("users", [
+        ModelQuery(key: "no_anggota", value: noAnggota),
+        ModelQuery(key: "password", value: password),
+      ]);
+
+      if (res.size > 0) {
+        preference.setString('no_anggota', noAnggota);
+        navigatePush(const BottomNav(), isRemove: true);
+      } else {
+        throw Exception("No anggota / kata sandi salah");
+      }
+
+      // log("res", v: res.size);
+
+      // await FirebaseAuth.instance.signInWithEmailAndPassword(
+      //   email: noAnggota,
+      //   password: password,
+      // );
       // navigatorKey.currentState!.popUntil((route) => route.isFirst);
-      navigatePush(const FaceAutentikasi(), isRemove: true);
+      // navigatePush(const FaceAutentikasi(), isRemove: true);
     } on FirebaseAuthException catch (e) {
       // ignore: use_build_context_synchronously
       Navigator.of(context, rootNavigator: true).pop('dialog');
       Utils.showSnackBar(e.message, Colors.red);
+    } on Exception catch (e) {
+      Navigator.of(context, rootNavigator: true).pop('dialog');
+      Utils.showSnackBar(e.toString(), Colors.red);
     }
   }
 }

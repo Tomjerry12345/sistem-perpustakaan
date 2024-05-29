@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:perpustakaan_mobile/model/ModelQuery.dart';
 import 'package:perpustakaan_mobile/services/FirebaseServices.dart';
+import 'package:perpustakaan_mobile/services/SharedPreferencesServices.dart';
 import 'package:perpustakaan_mobile/utils/screen_utils.dart';
 import 'package:perpustakaan_mobile/widget/text/text_widget.dart';
 
@@ -16,12 +17,32 @@ class Pengembalian extends StatefulWidget {
 
 class _PengembalianState extends State<Pengembalian> {
   FirebaseServices db = FirebaseServices();
+  final preferences = SharedPreferencesServices();
+
+  String email = "";
+
+  @override
+  void initState() {
+    super.initState();
+    getEmail();
+  }
+
+  Future<void> getEmail() async {
+    await preferences.init();
+    final noAnggota = preferences.getString("no_anggota");
+    final qUsers = await db.queryFuture(
+        "users", [ModelQuery(key: "no_anggota", value: noAnggota)]);
+    final dataUser = qUsers.docs[0].data();
+    setState(() {
+      email = dataUser["email"];
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    final currentUser = db.getCurrentUser();
+    // final currentUser = db.getCurrentUser();
 
-    final query = [ModelQuery(key: "email", value: currentUser?.email)];
+    final query = [ModelQuery(key: "email", value: email)];
 
     return Scaffold(
         appBar: AppBar(

@@ -192,18 +192,18 @@ class _RegistrasiState extends State<Registrasi> {
         ),
       );
 
-      final res = await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: emailController.text.trim(),
-        password: passwordController.text.trim(),
-      );
+      // final res = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      //   email: emailController.text.trim(),
+      //   password: passwordController.text.trim(),
+      // );
 
-      final docUser =
-          FirebaseFirestore.instance.collection("users").doc(res.user!.uid);
+      // final docUser =
+      //     FirebaseFirestore.instance.collection("users").doc(res.user!.uid);
 
       final urlFile = await fs.uploadFile(getImage!, "profile");
 
       final json = {
-        "uid": res.user!.uid,
+        // "uid": res.user!.uid,
         "nama": namaController.text.trim(),
         "alamat": alamatController.text.trim(),
         "pekerjaan": pekerjaanController.text.trim(),
@@ -214,10 +214,13 @@ class _RegistrasiState extends State<Registrasi> {
         "email": emailController.text.trim(),
         "created_at": DateTime.now(),
         "no_anggota": generateRandomString(8),
+        "password": passwordController.text.trim(),
         "image": urlFile,
       };
 
-      await docUser.set(json);
+      fs.add("users", json);
+
+      // await docUser.set(json);
 
       Utils.showSnackBar("Berhasil Daftar.", Colors.green);
       navigatorKey.currentState!.popUntil((route) => route.isFirst);

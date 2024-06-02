@@ -119,7 +119,7 @@ class _LoginState extends State<Login> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Text(
-                    "Tidak Punya Akun ?",
+                    "Tidak Punya Kartu Anggota ?",
                     textAlign: TextAlign.center,
                     style: TextStyle(fontSize: 15, color: Colors.grey),
                   ),

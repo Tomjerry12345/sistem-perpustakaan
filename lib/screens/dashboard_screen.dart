@@ -81,7 +81,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               selectedIconTheme: IconThemeData(color: Colors.blue.shade300),
               onDestinationSelected: (value) {
                 log("index", v: value);
-                if (value == 6) {
+                if (value == 5) {
                   navigatePushAndRemove(const Login());
                 }
                 setState(() {
@@ -109,10 +109,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   icon: Icon(Icons.bookmark_add),
                   label: Text("Pengembalian"),
                 ),
-                NavigationRailDestination(
-                  icon: Icon(Icons.menu_book),
-                  label: Text("Buku tamu"),
-                ),
+                // NavigationRailDestination(
+                //   icon: Icon(Icons.menu_book),
+                //   label: Text("Buku tamu"),
+                // ),
                 NavigationRailDestination(
                   icon: Icon(Icons.group),
                   label: Text("Data Anggota"),
@@ -131,9 +131,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       ? const Peminjaman()
                       : index == 3
                           ? const Pengembalian()
-                          : index == 4
-                              ? const BukuTamu()
-                              : const DataAnggota()
+                          // : index == 4
+                          //     ? const BukuTamu()
+                          : const DataAnggota()
         ],
       ),
     );

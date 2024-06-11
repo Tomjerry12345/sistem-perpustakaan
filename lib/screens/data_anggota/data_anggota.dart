@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:admin_perpustakaan/services/FirebaseServices.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 // ignore: avoid_web_libraries_in_flutter
@@ -13,7 +14,7 @@ class DataAnggota extends StatefulWidget {
 }
 
 class _DataAnggotaState extends State<DataAnggota> {
-  FirebaseFirestore firestore = FirebaseFirestore.instance;
+  FirebaseServices fs = FirebaseServices();
 
   List<QueryDocumentSnapshot>? allData;
 
@@ -55,7 +56,7 @@ class _DataAnggotaState extends State<DataAnggota> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
-        stream: firestore.collection("users").snapshots(),
+        stream: fs.getAllStream("users"),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             allData = snapshot.data!.docs;

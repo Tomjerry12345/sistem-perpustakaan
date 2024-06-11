@@ -55,9 +55,6 @@ class FirebaseServices {
   Stream<QuerySnapshot<Map<String, dynamic>>> searching(
       String path, String key, String value) {
     Query<Map<String, dynamic>> collection = _db.collection(path);
-
-    log("value ", v: value);
-
     collection = collection.where(key, arrayContainsAny: [
       value.substring(0, 1).toUpperCase() + value.substring(1),
       value.substring(0, 1).toLowerCase() + value.substring(1),

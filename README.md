@@ -64,7 +64,3 @@ lib/
 
 - A Firebase email/password login screen exists, but the app currently opens directly on the dashboard. Protect your data with Firestore and Storage security rules before deploying.
 - Planned but not implemented yet: import and export for books, members, guest book, loans and returns.
-
-## Screenshots
-
-<!-- Add screenshots of the dashboard, book catalog and loan screens here -->

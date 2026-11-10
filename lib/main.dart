@@ -9,13 +9,13 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
       options: const FirebaseOptions(
-          apiKey: "AIzaSyDDUC9yClvRQ5A-SgogIO9pge6zHtQ6-yM",
-          authDomain: "perpustakaan-ccad6.firebaseapp.com",
-          projectId: "perpustakaan-ccad6",
-          storageBucket: "perpustakaan-ccad6.appspot.com",
-          messagingSenderId: "735594420343",
-          appId: "1:735594420343:web:979af67336cd3aeda78e72",
-          measurementId: "G-FQMKPRX985"));
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT.firebaseapp.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT.appspot.com",
+      messagingSenderId: "YOUR_SENDER_ID",
+      appId: "YOUR_APP_ID",
+      measurementId: "YOUR_MEASUREMENT_ID")););
   runApp(const MyApp());
 }
 

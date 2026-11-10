@@ -44,40 +44,40 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyDDUC9yClvRQ5A-SgogIO9pge6zHtQ6-yM',
-    appId: '1:735594420343:web:979af67336cd3aeda78e72',
-    messagingSenderId: '735594420343',
-    projectId: 'perpustakaan-ccad6',
-    authDomain: 'perpustakaan-ccad6.firebaseapp.com',
-    storageBucket: 'perpustakaan-ccad6.appspot.com',
-    measurementId: 'G-FQMKPRX985',
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT.firebaseapp.com",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_PROJECT.appspot.com",
+    messagingSenderId: "YOUR_SENDER_ID",
+    appId: "YOUR_APP_ID",
+    measurementId: "YOUR_MEASUREMENT_ID"
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyAyIeHs41Q2SjW_pcqrbyyUV9yyfz5sWZo',
-    appId: '1:735594420343:android:ea5baf84b4141015a78e72',
-    messagingSenderId: '735594420343',
-    projectId: 'perpustakaan-ccad6',
-    storageBucket: 'perpustakaan-ccad6.appspot.com',
+    apiKey: 'YOUR_API_KEY',
+    appId: 'YOUR_APP_ID',
+    messagingSenderId: "YOUR_SENDER_ID",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_PROJECT.appspot.com",
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyC1gA-NibLE6OVUu52xIXQPcq5PRnYRCwc',
-    appId: '1:735594420343:ios:dbf80a86a512ca50a78e72',
-    messagingSenderId: '735594420343',
-    projectId: 'perpustakaan-ccad6',
-    storageBucket: 'perpustakaan-ccad6.appspot.com',
-    iosClientId: '735594420343-rsf62q0rtg7ebceesdilfo12udrlpcjo.apps.googleusercontent.com',
+    apiKey: "YOUR_API_KEY",
+    appId: "YOUR_APP_ID",
+    messagingSenderId: "YOUR_SENDER_ID",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_PROJECT.appspot.com",
+    iosClientId: '443355.apps.googleusercontent.com',
     iosBundleId: 'com.example.perpustakaanMobile',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyC1gA-NibLE6OVUu52xIXQPcq5PRnYRCwc',
-    appId: '1:735594420343:ios:61d2d21ae51e80a5a78e72',
+    apiKey: "YOUR_API_KEY",
+    appId: "YOUR_APP_ID",
     messagingSenderId: '735594420343',
     projectId: 'perpustakaan-ccad6',
-    storageBucket: 'perpustakaan-ccad6.appspot.com',
-    iosClientId: '735594420343-jlji0425mmdagg901n5qjf0vl4uh98p7.apps.googleusercontent.com',
+    storageBucket: "YOUR_PROJECT.appspot.com",
+    iosClientId: '443355.apps.googleusercontent.com',
     iosBundleId: 'com.example.perpustakaanMobile.RunnerTests',
   );
 }
